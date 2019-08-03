@@ -12,17 +12,22 @@ pub fn create_map(mut context: Ctx, _next: impl Fn(Ctx) -> MiddlewareReturnValue
     Ok(new_map) => {
       match map_service::create_map(new_map) {
         Ok(map) => {
+          context.content_type("application/json");
           context.body(&serde_json::to_string(&map).unwrap());
         },
         Err(e) => {
+          eprintln!("Database error: {:#?}", e);
+
           context.status(400);
-          context.body("Could not create a new Map");
+          context.content_type("application/json");
+          context.body(&serde_json::json!({"code": 2, "message": "Database error"}).to_string());
         }
       };
     },
     Err(e) => {
       context.status(400);
-      context.body("Could not create a new Map");
+      context.content_type("application/json");
+      context.body(&serde_json::json!({"code": 1, "message": "Invalid body"}).to_string());
     }
   };
 

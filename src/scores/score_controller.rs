@@ -12,17 +12,22 @@ pub fn create_score(mut context: Ctx, _next: impl Fn(Ctx) -> MiddlewareReturnVal
     Ok(new_score) => {
       match score_service::create_score(new_score) {
         Ok(score) => {
+          context.content_type("application/json");
           context.body(&serde_json::to_string(&score).unwrap());
         },
         Err(e) => {
+          eprintln!("Database error: {:#?}", e);
+
           context.status(400);
-          context.body("Could not create a new Score");
+          context.content_type("application/json");
+          context.body(&serde_json::json!({"code": 2, "message": "Database error"}).to_string());
         }
       };
     },
     Err(e) => {
       context.status(400);
-      context.body("Could not create a new Score");
+      context.content_type("application/json");
+      context.body(&serde_json::json!({"code": 1, "message": "Invalid body"}).to_string());
     }
   };
 

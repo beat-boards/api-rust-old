@@ -40,6 +40,4 @@ pub struct NewMap {
   pub complexity: f64,
   pub saber_distance: f64,
   pub max_rp: f64,
-  pub upvotes: i32,
-  pub downvotes: i32,
 }

@@ -22,12 +22,7 @@ pub struct User {
 pub struct NewUser {
   pub steam_id: Option<i64>,
   pub oculus_id: Option<String>,
-  pub banned: bool,
   pub username: String,
-  pub role: Role,
   pub country: String,
-  pub rp: f64,
-  pub fails: i32,
-  pub following: Vec<Uuid>,
   pub image: Option<String>,
 }

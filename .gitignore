@@ -6,3 +6,5 @@ migrations/
 
 # CLion files
 .idea/
+
+.env

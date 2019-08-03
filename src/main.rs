@@ -57,7 +57,7 @@ fn profiling(context: Ctx, next: impl Fn(Ctx) -> MiddlewareReturnValue<Ctx>  + S
 }
 
 fn ping(mut context: Ctx, _next: impl Fn(Ctx) -> MiddlewareReturnValue<Ctx>  + Send + Sync) -> MiddlewareReturnValue<Ctx> {
-  let val = "pong";
+  let val = "Pong!";
   context.body(val);
 
   Box::new(future::ok(context))

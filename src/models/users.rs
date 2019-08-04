@@ -3,6 +3,7 @@ use crate::schema::Role;
 use uuid::Uuid;
 
 #[derive(Debug, Deserialize, Serialize, Queryable)]
+#[serde(rename_all(serialize = "camelCase"))]
 pub struct User {
     pub id: Uuid,
     pub steam_id: Option<i64>,

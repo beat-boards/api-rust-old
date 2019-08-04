@@ -4,6 +4,7 @@ use chrono::NaiveDateTime;
 use uuid::Uuid;
 
 #[derive(Debug, Deserialize, Serialize, Queryable)]
+#[serde(rename_all(serialize = "camelCase"))]
 pub struct Score {
     pub id: Uuid,
     pub user: Uuid,

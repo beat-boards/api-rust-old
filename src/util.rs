@@ -11,7 +11,14 @@ lazy_static! {
 
         let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
         let manager = ConnectionManager::new(database_url);
-        let pool = r2d2::Pool::builder().max_size(15).build(manager).unwrap();
+        let database_max_pool_size: u32 = env::var("DATABASE_MAX_POOL_SIZE")
+            .expect("DATABASE_MAX_POOL_SIZE must be set")
+            .parse()
+            .expect("DATABASE_MAX_POOL_SIZE must be an unsigned integer");
+        let pool = r2d2::Pool::builder()
+            .max_size(database_max_pool_size)
+            .build(manager)
+            .unwrap();
 
         pool
     };

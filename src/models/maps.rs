@@ -3,6 +3,7 @@ use crate::schema::Difficulty;
 use uuid::Uuid;
 
 #[derive(Debug, Deserialize, Serialize, Queryable)]
+#[serde(rename_all(serialize = "camelCase"))]
 pub struct Map {
     pub id: Uuid,
     pub hash: String,

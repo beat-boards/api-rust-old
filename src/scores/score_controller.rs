@@ -3,6 +3,7 @@ use thruster::{MiddlewareChain, MiddlewareReturnValue};
 
 use crate::models::scores::{NewScore, Score};
 use crate::scores::score_service;
+use crate::util::error::Error;
 use futures::future;
 use std::boxed::Box;
 use uuid::Uuid;
@@ -20,19 +21,12 @@ pub fn create_score(
                 }
                 Err(e) => {
                     eprintln!("Database error: {:#?}", e);
-
-                    context.status(400);
-                    context.content_type("application/json");
-                    context.body(
-                        &serde_json::json!({"code": 2, "message": "Database error"}).to_string(),
-                    );
+                    Error::internal_error().set_context(&mut context);
                 }
             };
         }
         Err(e) => {
-            context.status(400);
-            context.content_type("application/json");
-            context.body(&serde_json::json!({"code": 1, "message": "Invalid body"}).to_string());
+            Error::request_error().set_context(&mut context);
         }
     };
 

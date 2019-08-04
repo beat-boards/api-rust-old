@@ -13,8 +13,7 @@ fn plaintext(
     mut context: Ctx,
     _next: impl Fn(Ctx) -> MiddlewareReturnValue<Ctx> + Send + Sync,
 ) -> MiddlewareReturnValue<Ctx> {
-    let val = "Pong!";
-    context.body(val);
+    context.body("Pong!");
 
     Box::new(future::ok(context))
 }

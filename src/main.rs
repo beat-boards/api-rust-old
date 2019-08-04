@@ -12,6 +12,8 @@ extern crate uuid;
 #[macro_use]
 extern crate serde_derive;
 #[macro_use]
+extern crate serde_repr;
+#[macro_use]
 extern crate diesel;
 #[macro_use]
 extern crate diesel_derive_enum;
@@ -42,6 +44,8 @@ use crate::users::init as user_routes;
 
 use crate::context::{generate_context, Ctx};
 
+use crate::util::error::Error;
+
 fn profiling(
     context: Ctx,
     next: impl Fn(Ctx) -> MiddlewareReturnValue<Ctx> + Send + Sync,
@@ -67,8 +71,7 @@ fn ping(
     mut context: Ctx,
     _next: impl Fn(Ctx) -> MiddlewareReturnValue<Ctx> + Send + Sync,
 ) -> MiddlewareReturnValue<Ctx> {
-    let val = "Pong!";
-    context.body(val);
+    context.body("Pong!");
 
     Box::new(future::ok(context))
 }
@@ -77,9 +80,7 @@ pub fn not_found(
     mut context: Ctx,
     _next: impl Fn(Ctx) -> MiddlewareReturnValue<Ctx> + Send + Sync,
 ) -> MiddlewareReturnValue<Ctx> {
-    context.body("Whoops! Nothing here!");
-    context.status(404);
-
+    Error::not_found_error().set_context(&mut context);
     Box::new(future::ok(context))
 }
 

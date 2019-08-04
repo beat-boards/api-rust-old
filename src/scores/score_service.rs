@@ -1,29 +1,28 @@
 use diesel;
+use diesel::result::Error;
 use diesel::QueryDsl;
 use diesel::RunQueryDsl;
-use diesel::result::Error;
 use uuid::Uuid;
 
-use crate::util::db;
-use crate::models::scores::{ Score, NewScore };
+use crate::models::scores::{NewScore, Score};
 use crate::schema::scores;
 use crate::schema::scores::dsl::*;
+use crate::util::db;
 
 pub fn create_score(new_score: NewScore) -> Result<Score, Error> {
-  let conn = db::establish_connection();
+    let conn = db::establish_connection();
 
-  let score = diesel::insert_into(scores::table)
-    .values(&new_score)
-    .get_result(&conn);
+    let score = diesel::insert_into(scores::table)
+        .values(&new_score)
+        .get_result(&conn);
 
-  score
+    score
 }
 
 pub fn get_score(identifier: Uuid) -> Result<Score, Error> {
-  let conn = db::establish_connection();
+    let conn = db::establish_connection();
 
-  let score = scores.find(identifier)
-    .first(&conn);
+    let score = scores.find(identifier).first(&conn);
 
-  score
+    score
 }

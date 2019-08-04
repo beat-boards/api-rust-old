@@ -113,8 +113,4 @@ table! {
 joinable!(scores -> maps (map));
 joinable!(scores -> users (user));
 
-allow_tables_to_appear_in_same_query!(
-    maps,
-    scores,
-    users,
-);
+allow_tables_to_appear_in_same_query!(maps, scores, users,);

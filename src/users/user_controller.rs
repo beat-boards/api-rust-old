@@ -20,8 +20,6 @@ pub fn get_users(
 
     context.content_type("application/json");
 
-    println!("{:#?}", &context.query_params);
-
     let limit: i64 = context
         .query_params
         .get("limit")

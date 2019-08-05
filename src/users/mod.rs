@@ -2,7 +2,7 @@ pub mod user_controller;
 pub mod user_service;
 
 use crate::context::{generate_context, Ctx};
-use crate::users::user_controller::{get_users, create_user, delete_user, get_user, update_user};
+use crate::users::user_controller::{create_user, delete_user, get_user, get_users, update_user};
 use thruster::{middleware, App, MiddlewareChain, MiddlewareReturnValue, Request};
 
 pub fn init() -> App<Request, Ctx> {

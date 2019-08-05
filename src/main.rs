@@ -80,7 +80,8 @@ pub fn not_found(
     mut context: Ctx,
     _next: impl Fn(Ctx) -> MiddlewareReturnValue<Ctx> + Send + Sync,
 ) -> MiddlewareReturnValue<Ctx> {
-    HttpError::not_found("The specified route doesn't exist on this server").set_context(&mut context);
+    HttpError::not_found("The specified route doesn't exist on this server")
+        .set_context(&mut context);
     Box::new(future::ok(context))
 }
 

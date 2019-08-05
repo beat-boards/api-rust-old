@@ -1,8 +1,8 @@
 use diesel;
 use diesel::result::Error;
+use diesel::ExpressionMethods;
 use diesel::QueryDsl;
 use diesel::RunQueryDsl;
-use diesel::ExpressionMethods;
 use uuid::Uuid;
 
 use crate::models::users::{NewUser, User};

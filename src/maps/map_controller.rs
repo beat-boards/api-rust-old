@@ -21,7 +21,8 @@ pub fn create_map(
                 }
                 Err(e) => {
                     eprintln!("Database error: {:#?}", e);
-                    HttpError::internal_server_error("A database error occurred").set_context(&mut context);
+                    HttpError::internal_server_error("A database error occurred")
+                        .set_context(&mut context);
                 }
             };
         }

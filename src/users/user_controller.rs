@@ -20,8 +20,10 @@ pub fn get_users(
 
     context.content_type("application/json");
 
-    let limit: u32 = context
-        .params
+    println!("{:#?}", &context.query_params);
+
+    let limit: i64 = context
+        .query_params
         .get("limit")
         .unwrap_or(&String::from("100"))
         .parse()

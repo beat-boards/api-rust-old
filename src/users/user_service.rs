@@ -10,10 +10,13 @@ use crate::schema::users;
 use crate::schema::users::dsl::*;
 use crate::util::db;
 
-pub fn get_users(limit: u32) -> Result<Vec<User>, Error> {
+pub fn get_users(limit: i64) -> Result<Vec<User>, Error> {
     let conn = db::establish_connection();
 
-    let user_vec = users.order((rp.desc(), id.asc())).load::<User>(&conn);
+    let user_vec = users
+        .order((rp.desc(), id.asc()))
+        .limit(limit)
+        .load::<User>(&conn);
 
     user_vec
 }

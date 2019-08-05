@@ -3,11 +3,13 @@ pub mod user_service;
 
 use crate::context::{generate_context, Ctx};
 use crate::users::user_controller::{create_user, delete_user, get_user, get_users, update_user};
+use thruster::thruster_middleware::query_params::query_params;
 use thruster::{middleware, App, MiddlewareChain, MiddlewareReturnValue, Request};
 
 pub fn init() -> App<Request, Ctx> {
     let mut subroute = App::<Request, Ctx>::create(generate_context);
 
+    subroute.use_middleware("/", middleware![Ctx => query_params]);
     subroute.get("/", middleware![Ctx => get_users]);
     subroute.post("/", middleware![Ctx => create_user]);
     subroute.get("/:id", middleware![Ctx => get_user]);

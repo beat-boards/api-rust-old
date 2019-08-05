@@ -8,6 +8,32 @@ use futures::future;
 use std::boxed::Box;
 use uuid::Uuid;
 
+pub fn get_users(
+    mut context: Ctx,
+    _next: impl Fn(Ctx) -> MiddlewareReturnValue<Ctx> + Send + Sync,
+) -> MiddlewareReturnValue<Ctx> {
+    fn error(mut context: Ctx) -> MiddlewareReturnValue<Ctx> {
+        HttpError::internal_server_error("An error occurred while loading users").set_context(&mut context);
+        Box::new(future::ok(context))
+    }
+
+    context.content_type("application/json");
+
+    let limit: u32 = context.params.get("limit").unwrap_or(&String::from("100")).parse().unwrap_or(100);
+
+    let fetched_result = match user_service::get_users(limit) {
+        Ok(_fetched_result) => _fetched_result,
+        Err(_) => return error(context),
+    };
+
+    match serde_json::to_string(&fetched_result) {
+        Ok(result) => context.body(&result),
+        Err(_) => return error(context),
+    };
+
+    Box::new(future::ok(context))
+}
+
 pub fn create_user(
     mut context: Ctx,
     _next: impl Fn(Ctx) -> MiddlewareReturnValue<Ctx> + Send + Sync,
@@ -41,6 +67,8 @@ pub fn get_user(
         HttpError::bad_request("The specified user doesn't exist").set_context(&mut context);
         Box::new(future::ok(context))
     }
+
+    context.content_type("application/json");
 
     let id = match context.params.get("id") {
         Some(_id) => _id,

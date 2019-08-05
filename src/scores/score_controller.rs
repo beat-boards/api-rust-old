@@ -42,6 +42,8 @@ pub fn get_score(
         Box::new(future::ok(context))
     }
 
+    context.content_type("application/json");
+
     let id = match context.params.get("id") {
         Some(_id) => _id,
         None => return error(context),

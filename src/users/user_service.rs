@@ -2,12 +2,21 @@ use diesel;
 use diesel::result::Error;
 use diesel::QueryDsl;
 use diesel::RunQueryDsl;
+use diesel::ExpressionMethods;
 use uuid::Uuid;
 
 use crate::models::users::{NewUser, User};
 use crate::schema::users;
 use crate::schema::users::dsl::*;
 use crate::util::db;
+
+pub fn get_users(limit: u32) -> Result<Vec<User>, Error> {
+    let conn = db::establish_connection();
+
+    let user_vec = users.order((rp.desc(), id.asc())).load::<User>(&conn);
+
+    user_vec
+}
 
 pub fn create_user(new_user: NewUser) -> Result<User, Error> {
     let conn = db::establish_connection();

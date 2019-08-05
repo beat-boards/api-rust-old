@@ -3,7 +3,7 @@ use thruster::{MiddlewareChain, MiddlewareReturnValue};
 
 use crate::models::scores::{NewScore, Score};
 use crate::scores::score_service;
-use crate::util::error::Error;
+use crate::util::error::HttpError;
 use futures::future;
 use std::boxed::Box;
 use uuid::Uuid;
@@ -21,12 +21,12 @@ pub fn create_score(
                 }
                 Err(e) => {
                     eprintln!("Database error: {:#?}", e);
-                    Error::internal_error().set_context(&mut context);
+                    HttpError::internal_server_error("A database error occurred").set_context(&mut context);
                 }
             };
         }
         Err(e) => {
-            Error::request_error().set_context(&mut context);
+            HttpError::bad_request("The provided body is invalid").set_context(&mut context);
         }
     };
 
@@ -38,8 +38,7 @@ pub fn get_score(
     _next: impl Fn(Ctx) -> MiddlewareReturnValue<Ctx> + Send + Sync,
 ) -> MiddlewareReturnValue<Ctx> {
     fn error(mut context: Ctx) -> MiddlewareReturnValue<Ctx> {
-        context.status(400);
-        context.body("Could not get Score");
+        HttpError::bad_request("The specified score doesn't exist").set_context(&mut context);
         Box::new(future::ok(context))
     }
 

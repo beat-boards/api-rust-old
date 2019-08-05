@@ -47,20 +47,26 @@ pub mod error {
 
     #[derive(Serialize_repr, Deserialize_repr, PartialEq, Eq, Debug, Clone)]
     #[repr(u32)]
-    pub enum ErrorCode {
-        Request = 400,
+    pub enum HttpErrorCode {
+        BadRequest = 400,
+        Unauthorized = 401,
+        Forbidden = 403,
         NotFound = 404,
-        Internal = 500,
+        MethodNotAllowed = 405,
+        Gone = 410,
+        PayloadTooLarge = 413,
+        InternalServerError = 500,
     }
 
     #[derive(Debug, Deserialize, Serialize)]
     #[serde(rename_all(serialize = "camelCase"))]
-    pub struct Error {
-        code: ErrorCode,
+    pub struct HttpError {
+        code: HttpErrorCode,
         message: String,
+        details: String,
     }
 
-    impl Error {
+    impl HttpError {
         pub fn to_string(&self) -> String {
             serde_json::to_string(self).unwrap()
         }
@@ -70,22 +76,25 @@ pub mod error {
             ctx.body(&self.to_string());
         }
 
-        pub fn request_error() -> Error {
-            Error {
-                code: ErrorCode::Request,
-                message: String::from("Invalid request"),
+        pub fn bad_request(details: &str) -> HttpError {
+            HttpError {
+                code: HttpErrorCode::BadRequest,
+                message: String::from("Bad Request"),
+                details: String::from(details),
             }
         }
-        pub fn internal_error() -> Error {
-            Error {
-                code: ErrorCode::Internal,
-                message: String::from("Database error"),
+        pub fn not_found(details: &str) -> HttpError {
+            HttpError {
+                code: HttpErrorCode::NotFound,
+                message: String::from("Not Found"),
+                details: String::from(details),
             }
         }
-        pub fn not_found_error() -> Error {
-            Error {
-                code: ErrorCode::NotFound,
-                message: String::from("Requested resource not found"),
+        pub fn internal_server_error(details: &str) -> HttpError {
+            HttpError {
+                code: HttpErrorCode::InternalServerError,
+                message: String::from("Internal Server Error"),
+                details: String::from(details),
             }
         }
     }

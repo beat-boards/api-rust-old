@@ -44,7 +44,7 @@ use crate::users::init as user_routes;
 
 use crate::context::{generate_context, Ctx};
 
-use crate::util::error::Error;
+use crate::util::error::HttpError;
 
 fn profiling(
     context: Ctx,
@@ -80,7 +80,7 @@ pub fn not_found(
     mut context: Ctx,
     _next: impl Fn(Ctx) -> MiddlewareReturnValue<Ctx> + Send + Sync,
 ) -> MiddlewareReturnValue<Ctx> {
-    Error::not_found_error().set_context(&mut context);
+    HttpError::not_found("The specified route doesn't exist on this server").set_context(&mut context);
     Box::new(future::ok(context))
 }
 

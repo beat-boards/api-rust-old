@@ -1,14 +1,5 @@
 language: rust
 cache: cargo
-addons:
-  postgresql: "11"
-  apt:
-    packages:
-      - postgresql-11
-      - postgresql-client-11
-env:
-  global:
-    - PGPORT=5432
 services:
   - postgresql
 before_script:

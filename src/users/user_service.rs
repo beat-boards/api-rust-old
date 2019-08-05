@@ -13,28 +13,23 @@ use crate::util::db;
 pub fn get_users(limit: i64) -> Result<Vec<User>, Error> {
     let conn = db::establish_connection();
 
-    let user_vec = users
+    let query = users
         .order((rp.desc(), id.asc()))
         .limit(limit)
         .load::<User>(&conn);
 
-    user_vec
+    query
 }
 
 pub fn create_user(new_user: NewUser) -> Result<User, Error> {
     let conn = db::establish_connection();
 
-    let user = diesel::insert_into(users::table)
+    diesel::insert_into(users::table)
         .values(&new_user)
-        .get_result(&conn);
-
-    user
+        .get_result(&conn)
 }
 
 pub fn get_user(identifier: Uuid) -> Result<User, Error> {
     let conn = db::establish_connection();
-
-    let user = users.find(identifier).first(&conn);
-
-    user
+    users.find(identifier).first(&conn)
 }

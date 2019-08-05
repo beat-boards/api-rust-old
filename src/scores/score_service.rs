@@ -12,17 +12,12 @@ use crate::util::db;
 pub fn create_score(new_score: NewScore) -> Result<Score, Error> {
     let conn = db::establish_connection();
 
-    let score = diesel::insert_into(scores::table)
+    diesel::insert_into(scores::table)
         .values(&new_score)
-        .get_result(&conn);
-
-    score
+        .get_result(&conn)
 }
 
 pub fn get_score(identifier: Uuid) -> Result<Score, Error> {
     let conn = db::establish_connection();
-
-    let score = scores.find(identifier).first(&conn);
-
-    score
+    scores.find(identifier).first(&conn)
 }

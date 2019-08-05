@@ -8,6 +8,42 @@ use futures::future;
 use std::boxed::Box;
 use uuid::Uuid;
 
+pub fn get_maps(
+    mut context: Ctx,
+    _next: impl Fn(Ctx) -> MiddlewareReturnValue<Ctx> + Send + Sync,
+) -> MiddlewareReturnValue<Ctx> {
+    fn error(mut context: Ctx) -> MiddlewareReturnValue<Ctx> {
+        HttpError::internal_server_error("An error occurred while loading maps")
+            .set_context(&mut context);
+        Box::new(future::ok(context))
+    }
+
+    context.content_type("application/json");
+
+    let limit: i64 = context
+        .query_params
+        .get("limit")
+        .unwrap_or(&String::from("100"))
+        .parse()
+        .unwrap_or(100);
+
+    let hash = context.query_params.get("hash");
+
+    let filters = map_service::Filters { hash };
+
+    let fetched_result = match map_service::get_maps(limit, filters) {
+        Ok(_fetched_result) => _fetched_result,
+        Err(_) => return error(context),
+    };
+
+    match serde_json::to_string(&fetched_result) {
+        Ok(result) => context.body(&result),
+        Err(_) => return error(context),
+    };
+
+    Box::new(future::ok(context))
+}
+
 pub fn create_map(
     mut context: Ctx,
     _next: impl Fn(Ctx) -> MiddlewareReturnValue<Ctx> + Send + Sync,

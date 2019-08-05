@@ -1,0 +1,15 @@
+language: rust
+cache: cargo
+addons:
+  postgresql: "11.4"
+services:
+  - postgresql
+before_script:
+  - psql --set ON_ERROR_STOP=on bbapi < db.sql
+  - mv .env.example .env
+script:
+  - cargo build
+  - target/debug/bbapi&
+  - PID=$!
+  - curl "http://localhost:4321"
+  - kill $PID

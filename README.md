@@ -21,6 +21,6 @@ Building and running on Windows is a bit more troublesome.
 * Include `<POSTGRES_DIR>\lib` in your `LIB` environment variable
 * Include `<POSTGRES_DIR>\bin` and `<POSTGRES_DIR>\lib` in your `PATH`
 
-### License
+## License
 
 Our API is licensed under the [MIT License](LICENSE).

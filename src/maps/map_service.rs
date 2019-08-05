@@ -30,7 +30,9 @@ pub fn get_maps(limit: i64, filters: Filters) -> Result<Vec<Map>, Error> {
 pub fn create_map(new_map: NewMap) -> Result<Map, Error> {
     let conn = db::establish_connection();
 
-    diesel::insert_into(maps::table).values(&new_map).get_result(&conn)
+    diesel::insert_into(maps::table)
+        .values(&new_map)
+        .get_result(&conn)
 }
 
 pub fn get_map(identifier: Uuid) -> Result<Map, Error> {

@@ -3,7 +3,8 @@ cache: cargo
 services:
   - postgresql
 before_script:
-  - psql --set ON_ERROR_STOP=on bbapi < db.sql
+  - psql -c 'create database bbapi;' -U postgres
+  - psql --set ON_ERROR_STOP=on bbapi < db.sql -U postgres
   - mv .env.example .env
 script:
   - cargo build

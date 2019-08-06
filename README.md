@@ -12,14 +12,14 @@ Here is a list of requirements to build and run the API and the versions we curr
 
 * Rust - 1.36
 * PostgreSQL - 11.4
-* Diesel CLI - 1.4.0 - `--no-default-features --features "postgres"`
+* Redis - 5.0
+* Diesel CLI - 1.4 - `--no-default-features --features "postgres"`
+
+You should rename .env.example to .env and set the variables according to your current setup. You will also need to restore the PostgreSQL database from [the provided dump](db.sql).
 
 ### Windows
 
-Building and running on Windows is a bit more troublesome. 
-
-* Include `<POSTGRES_DIR>\lib` in your `LIB` environment variable
-* Include `<POSTGRES_DIR>\bin` and `<POSTGRES_DIR>\lib` in your `PATH`
+Windows is not supported as the API uses Redis 5.0, which is not compatible with Windows.
 
 ## License
 

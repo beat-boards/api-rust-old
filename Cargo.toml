@@ -27,4 +27,4 @@ env_logger = { version = "0.6", default-features = false }
 uuid = { version = "0.6", features = ["serde", "v4"] }
 
 [dev-dependencies]
-cargo-husky = { version = "1", default-features = false, features = ["precommit-hook", "run-cargo-check", "run-cargo-fmt"] }
+cargo-husky = { version = "1", default-features = false, features = ["prepush-hook", "precommit-hook", "run-cargo-check", "run-cargo-fmt"] }

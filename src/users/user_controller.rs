@@ -27,7 +27,22 @@ pub fn get_users(
         .parse()
         .unwrap_or(100);
 
-    let fetched_result = match user_service::get_users(limit) {
+    let steam_id = context.query_params.get("steamId");
+    let steam_id: Option<i64> = match steam_id {
+        Some(id) => match id.parse::<i64>() {
+            Ok(id) => Some(id),
+            Err(_) => None,
+        },
+        None => None,
+    };
+    let oculus_id = context.query_params.get("oculusId");
+
+    let filters = user_service::Filters {
+        steam_id,
+        oculus_id,
+    };
+
+    let fetched_result = match user_service::get_users(limit, filters) {
         Ok(_fetched_result) => _fetched_result,
         Err(_) => return error(context),
     };

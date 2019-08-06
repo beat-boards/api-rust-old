@@ -10,15 +10,25 @@ use crate::schema::users;
 use crate::schema::users::dsl::*;
 use crate::util::db;
 
-pub fn get_users(limit: i64) -> Result<Vec<User>, Error> {
+pub struct Filters<'a> {
+    pub steam_id: Option<i64>,
+    pub oculus_id: Option<&'a String>,
+}
+
+pub fn get_users(limit: i64, filters: Filters) -> Result<Vec<User>, Error> {
     let conn = db::establish_connection();
 
-    let query = users
+    let mut query = users.into_boxed();
+    if let Some(f_sid) = &filters.steam_id {
+        query = query.filter(steam_id.eq(f_sid.clone()));
+    }
+    if let Some(f_oid) = &filters.oculus_id {
+        query = query.filter(oculus_id.eq(f_oid.clone()));
+    }
+    query
         .order((rp.desc(), id.asc()))
         .limit(limit)
-        .load::<User>(&conn);
-
-    query
+        .load::<User>(&conn)
 }
 
 pub fn create_user(new_user: NewUser) -> Result<User, Error> {

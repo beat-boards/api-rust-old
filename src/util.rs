@@ -10,12 +10,12 @@ lazy_static! {
     static ref DB_CONNECTION_POOL: Pool<ConnectionManager<PgConnection>> = {
         dotenv().ok();
 
-        let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
+        let database_url = env::var("DB_URL").expect("DB_URL must be set");
         let manager = ConnectionManager::new(database_url);
-        let database_max_pool_size: u32 = env::var("DATABASE_MAX_POOL_SIZE")
+        let database_max_pool_size: u32 = env::var("DB_MAX_POOL_SIZE")
             .unwrap_or(String::from("8"))
             .parse()
-            .expect("DATABASE_MAX_POOL_SIZE must be an unsigned integer");
+            .expect("DB_MAX_POOL_SIZE must be an unsigned integer");
         let pool = Pool::builder()
             .max_size(database_max_pool_size)
             .build(manager)

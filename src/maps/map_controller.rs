@@ -62,7 +62,7 @@ pub fn create_map(
                 }
             };
         }
-        Err(e) => {
+        Err(_) => {
             HttpError::bad_request("The provided body is invalid").set_context(&mut context);
         }
     };

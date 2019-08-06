@@ -1,6 +1,7 @@
 extern crate dotenv;
 extern crate env_logger;
 extern crate futures;
+extern crate r2d2_redis;
 extern crate serde;
 extern crate serde_json;
 extern crate thruster;

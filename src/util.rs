@@ -3,10 +3,11 @@ use diesel::r2d2::ConnectionManager;
 use dotenv::dotenv;
 use lazy_static::*;
 use r2d2::Pool;
+use r2d2_redis::RedisConnectionManager;
 use std::env;
 
 lazy_static! {
-    static ref CONNECTION_POOL: Pool<ConnectionManager<PgConnection>> = {
+    static ref DB_CONNECTION_POOL: Pool<ConnectionManager<PgConnection>> = {
         dotenv().ok();
 
         let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
@@ -15,8 +16,27 @@ lazy_static! {
             .unwrap_or(String::from("8"))
             .parse()
             .expect("DATABASE_MAX_POOL_SIZE must be an unsigned integer");
-        let pool = r2d2::Pool::builder()
+        let pool = Pool::builder()
             .max_size(database_max_pool_size)
+            .build(manager)
+            .unwrap();
+
+        pool
+    };
+}
+
+lazy_static! {
+    static ref CACHE_CONNECTION_POOL: Pool<RedisConnectionManager> = {
+        dotenv().ok();
+
+        let cache_url = env::var("CACHE_URL").expect("CACHE_URL must be set");
+        let manager = RedisConnectionManager::new(&cache_url[..]).unwrap();
+        let cache_max_pool_size: u32 = env::var("CACHE_MAX_POOL_SIZE")
+            .unwrap_or(String::from("8"))
+            .parse()
+            .expect("CACHE_MAX_POOL_SIZE must be an unsigned integer");
+        let pool = Pool::builder()
+            .max_size(cache_max_pool_size)
             .build(manager)
             .unwrap();
 
@@ -30,14 +50,30 @@ pub mod db {
     use r2d2::PooledConnection;
     use std::env;
 
-    use crate::util::CONNECTION_POOL;
+    use crate::util::DB_CONNECTION_POOL;
 
     pub fn establish_connection() -> PooledConnection<ConnectionManager<PgConnection>> {
-        let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
+        let database_url = env::var("DB_URL").expect("DB_URL must be set");
 
-        CONNECTION_POOL
+        DB_CONNECTION_POOL
             .get()
             .expect(&format!("Error connecting to {}", database_url))
+    }
+}
+
+pub mod cache {
+    use r2d2::PooledConnection;
+    use r2d2_redis::RedisConnectionManager;
+    use std::env;
+
+    use crate::util::CACHE_CONNECTION_POOL;
+
+    pub fn establish_connection() -> PooledConnection<RedisConnectionManager> {
+        let cache_url = env::var("CACHE_URL").expect("CACHE_URL must be set");
+
+        CACHE_CONNECTION_POOL
+            .get()
+            .expect(&format!("Error connecting to {}", cache_url))
     }
 }
 

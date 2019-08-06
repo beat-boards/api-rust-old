@@ -7,6 +7,7 @@ before_script:
   - psql --set ON_ERROR_STOP=on bbapi < db.sql -U postgres
   - mv .env.example .env
 script:
+  - cargo fmt -- --check
   - cargo build
   - target/debug/bbapi&
   - PID=$!

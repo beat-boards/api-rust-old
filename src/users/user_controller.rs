@@ -1,7 +1,7 @@
 use crate::context::Ctx;
-use thruster::{MiddlewareChain, MiddlewareReturnValue};
+use thruster::MiddlewareReturnValue;
 
-use crate::models::users::{NewUser, User};
+use crate::models::users::NewUser;
 use crate::users::user_service;
 use crate::util::error::HttpError;
 use futures::future;
@@ -58,7 +58,7 @@ pub fn create_user(
                 }
             };
         }
-        Err(e) => {
+        Err(_) => {
             HttpError::bad_request("The provided body is invalid").set_context(&mut context);
         }
     };

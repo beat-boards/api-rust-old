@@ -1,7 +1,7 @@
 use crate::context::Ctx;
-use thruster::{MiddlewareChain, MiddlewareReturnValue};
+use thruster::MiddlewareReturnValue;
 
-use crate::models::scores::{NewScore, Score};
+use crate::models::scores::NewScore;
 use crate::scores::score_service;
 use crate::util::error::HttpError;
 use futures::future;
@@ -26,7 +26,7 @@ pub fn create_score(
                 }
             };
         }
-        Err(e) => {
+        Err(_) => {
             HttpError::bad_request("The provided body is invalid").set_context(&mut context);
         }
     };

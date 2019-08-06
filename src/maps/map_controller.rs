@@ -1,8 +1,8 @@
 use crate::context::Ctx;
-use thruster::{MiddlewareChain, MiddlewareReturnValue};
+use thruster::MiddlewareReturnValue;
 
 use crate::maps::map_service;
-use crate::models::maps::{Map, NewMap};
+use crate::models::maps::NewMap;
 use crate::util::error::HttpError;
 use futures::future;
 use std::boxed::Box;

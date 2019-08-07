@@ -19,6 +19,7 @@ pub struct Score {
 }
 
 #[derive(Insertable, Debug, Deserialize, Serialize)]
+#[serde(rename_all(deserialize = "camelCase"))]
 #[table_name = "scores"]
 pub struct NewScore {
     pub user: Uuid,

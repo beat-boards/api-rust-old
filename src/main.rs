@@ -30,8 +30,8 @@ mod scores;
 mod users;
 
 use dotenv::dotenv;
-use futures::{future, Future};
 use futures::future::lazy;
+use futures::{future, Future};
 use std::boxed::Box;
 use std::env;
 
@@ -46,8 +46,8 @@ use crate::users::init as user_routes;
 
 use crate::context::{generate_context, Ctx};
 
-use crate::util::error::HttpError;
 use crate::util::cache::update_cache;
+use crate::util::error::HttpError;
 
 fn profiling(
     context: Ctx,

@@ -19,11 +19,12 @@ pub struct User {
 }
 
 #[derive(Insertable, Debug, Deserialize, Serialize)]
+#[serde(rename_all(deserialize = "camelCase"))]
 #[table_name = "users"]
-pub struct NewUser {
+pub struct NewUser<'a> {
     pub steam_id: Option<i64>,
-    pub oculus_id: Option<String>,
-    pub username: String,
-    pub country: String,
-    pub image: Option<String>,
+    pub oculus_id: Option<&'a str>,
+    pub username: &'a str,
+    pub country: &'a str,
+    pub image: Option<&'a str>,
 }

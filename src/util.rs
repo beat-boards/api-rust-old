@@ -66,15 +66,15 @@ pub mod cache {
     use diesel::QueryDsl;
     use diesel::RunQueryDsl;
     use r2d2::PooledConnection;
-    use r2d2_redis::RedisConnectionManager;
     use r2d2_redis::redis::Commands;
-    use std::env;
+    use r2d2_redis::RedisConnectionManager;
     use serde_json;
+    use std::env;
 
-    use crate::util::CACHE_CONNECTION_POOL;
-    use crate::util::db;
-    use crate::schema::users::dsl::*;
     use crate::models::users::User;
+    use crate::schema::users::dsl::*;
+    use crate::util::db;
+    use crate::util::CACHE_CONNECTION_POOL;
 
     pub fn establish_connection() -> PooledConnection<RedisConnectionManager> {
         let cache_url = env::var("CACHE_URL").expect("CACHE_URL must be set");
@@ -94,14 +94,16 @@ pub mod cache {
             .load::<User>(&db_conn)
             .expect("Querying users from database for caching");
 
-        let db_list = serde_json::to_string(&db_list)
-            .expect("Serializing users from databse for caching");
+        let db_list =
+            serde_json::to_string(&db_list).expect("Serializing users from databse for caching");
 
         let cache_list: String = cache_conn.get("bbapi:users").unwrap_or(String::from(""));
 
         if cache_list != db_list {
             println!("Updating cache...");
-            let _: () = cache_conn.set("bbapi:users", &db_list).expect("Updating cache");
+            let _: () = cache_conn
+                .set("bbapi:users", &db_list)
+                .expect("Updating cache");
         }
     }
 }

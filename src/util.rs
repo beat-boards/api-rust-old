@@ -1,14 +1,12 @@
 use diesel::pg::PgConnection;
 use diesel::r2d2::ConnectionManager;
-use dotenv::dotenv;
 use lazy_static::*;
 use r2d2::Pool;
 use r2d2_redis::RedisConnectionManager;
-use std::env;
 
 pub mod env_vars {
-    use lazy_static::*;
     use dotenv::dotenv;
+    use lazy_static::*;
     use std::env;
 
     lazy_static! {
@@ -16,30 +14,34 @@ pub mod env_vars {
             dotenv().ok();
             env::var("DB_URL").expect("Missing environment variable DB_URL")
         };
-
         pub static ref CACHE_URL: String = {
             dotenv().ok();
             env::var("CACHE_URL").expect("Missing environment variable CACHE_URL")
         };
-
         pub static ref DB_MAX_POOL_SIZE: u32 = {
             dotenv().ok();
-            env::var("DB_MAX_POOL_SIZE").expect("Missing environment variable DB_MAX_POOL_SIZE").parse::<u32>().expect("DB_MAX_POOL_SIZE must be an unsigned integer")
+            env::var("DB_MAX_POOL_SIZE")
+                .expect("Missing environment variable DB_MAX_POOL_SIZE")
+                .parse::<u32>()
+                .expect("DB_MAX_POOL_SIZE must be an unsigned integer")
         };
-
         pub static ref CACHE_MAX_POOL_SIZE: u32 = {
             dotenv().ok();
-            env::var("CACHE_MAX_POOL_SIZE").expect("Missing environment variable CACHE_MAX_POOL_SIZE").parse::<u32>().expect("CACHE_MAX_POOL_SIZE must be an unsigned integer")
+            env::var("CACHE_MAX_POOL_SIZE")
+                .expect("Missing environment variable CACHE_MAX_POOL_SIZE")
+                .parse::<u32>()
+                .expect("CACHE_MAX_POOL_SIZE must be an unsigned integer")
         };
-
         pub static ref HOST: String = {
             dotenv().ok();
             env::var("HOST").expect("Missing environment variable HOST")
         };
-
         pub static ref PORT: u16 = {
             dotenv().ok();
-            env::var("PORT").expect("Missing environment variable PORT").parse::<u16>().expect("PORT must be an unsigned integer")
+            env::var("PORT")
+                .expect("Missing environment variable PORT")
+                .parse::<u16>()
+                .expect("PORT must be an unsigned integer")
         };
     }
 }
@@ -54,7 +56,6 @@ lazy_static! {
 
         pool
     };
-
     static ref CACHE_CONNECTION_POOL: Pool<RedisConnectionManager> = {
         let manager = RedisConnectionManager::new(&(*env_vars::CACHE_URL)[..]).unwrap();
         let pool = Pool::builder()
@@ -70,10 +71,9 @@ pub mod db {
     use diesel::pg::PgConnection;
     use diesel::r2d2::ConnectionManager;
     use r2d2::PooledConnection;
-    use std::env;
 
-    use crate::util::DB_CONNECTION_POOL;
     use crate::util::env_vars::DB_URL;
+    use crate::util::DB_CONNECTION_POOL;
 
     pub fn establish_connection() -> PooledConnection<ConnectionManager<PgConnection>> {
         DB_CONNECTION_POOL
@@ -90,13 +90,12 @@ pub mod cache {
     use r2d2_redis::redis::Commands;
     use r2d2_redis::RedisConnectionManager;
     use serde_json;
-    use std::env;
 
     use crate::models::users::User;
     use crate::schema::users::dsl::*;
     use crate::util::db;
-    use crate::util::CACHE_CONNECTION_POOL;
     use crate::util::env_vars::CACHE_URL;
+    use crate::util::CACHE_CONNECTION_POOL;
 
     pub fn establish_connection() -> PooledConnection<RedisConnectionManager> {
         CACHE_CONNECTION_POOL

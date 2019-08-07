@@ -33,7 +33,6 @@ use dotenv::dotenv;
 use futures::future::lazy;
 use futures::{future, Future};
 use std::boxed::Box;
-use std::env;
 
 use std::time::Instant;
 use thruster::server::Server;
@@ -47,8 +46,8 @@ use crate::users::init as user_routes;
 use crate::context::{generate_context, Ctx};
 
 use crate::util::cache::update_cache;
-use crate::util::error::HttpError;
 use crate::util::env_vars::{HOST, PORT};
+use crate::util::error::HttpError;
 
 fn profiling(
     context: Ctx,

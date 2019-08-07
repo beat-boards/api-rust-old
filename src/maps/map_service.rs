@@ -5,10 +5,10 @@ use diesel::QueryDsl;
 use diesel::RunQueryDsl;
 use uuid::Uuid;
 
+use crate::db;
 use crate::models::maps::{Map, NewMap};
 use crate::schema::maps;
 use crate::schema::maps::dsl::*;
-use crate::util::db;
 
 pub struct Filters<'a> {
     pub hash: Option<&'a String>,

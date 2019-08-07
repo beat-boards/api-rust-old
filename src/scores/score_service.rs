@@ -4,10 +4,10 @@ use diesel::QueryDsl;
 use diesel::RunQueryDsl;
 use uuid::Uuid;
 
+use crate::db;
 use crate::models::scores::{NewScore, Score};
 use crate::schema::scores;
 use crate::schema::scores::dsl::*;
-use crate::util::db;
 
 pub fn create_score(new_score: NewScore) -> Result<Score, Error> {
     let conn = db::establish_connection();

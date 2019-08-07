@@ -22,7 +22,9 @@ extern crate diesel_derive_enum;
 pub mod models;
 pub mod schema;
 
+mod cache;
 mod context;
+mod db;
 mod util;
 
 mod maps;
@@ -45,7 +47,7 @@ use crate::users::init as user_routes;
 
 use crate::context::{generate_context, Ctx};
 
-use crate::util::cache::update_cache;
+use crate::cache::update_cache;
 use crate::util::env_vars::{HOST, PORT};
 use crate::util::error::HttpError;
 
@@ -64,6 +66,35 @@ fn profiling(
             ctx.request.path()
         );
 
+        future::ok(ctx)
+    });
+
+    Box::new(ctx_future)
+}
+
+fn user_caching(
+    context: Ctx,
+    next: impl Fn(Ctx) -> MiddlewareReturnValue<Ctx> + Send + Sync,
+) -> MiddlewareReturnValue<Ctx> {
+    let ctx_future = next(context).and_then(move |ctx| {
+        if ctx.request.method() != "GET" {
+            tokio::spawn(lazy(|| {
+                update_cache();
+                Ok(())
+            }));
+        }
+
+        future::ok(ctx)
+    });
+
+    Box::new(ctx_future)
+}
+
+fn map_caching(
+    context: Ctx,
+    next: impl Fn(Ctx) -> MiddlewareReturnValue<Ctx> + Send + Sync,
+) -> MiddlewareReturnValue<Ctx> {
+    let ctx_future = next(context).and_then(move |ctx| {
         if ctx.request.method() != "GET" {
             tokio::spawn(lazy(|| {
                 update_cache();

@@ -5,10 +5,10 @@ use diesel::QueryDsl;
 use diesel::RunQueryDsl;
 use uuid::Uuid;
 
+use crate::db;
 use crate::models::users::{NewUser, User};
 use crate::schema::users;
 use crate::schema::users::dsl::*;
-use crate::util::db;
 
 pub struct Filters<'a> {
     pub steam_id: Option<i64>,

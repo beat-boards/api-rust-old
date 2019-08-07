@@ -42,6 +42,17 @@ pub fn get_users(
         oculus_id,
     };
 
+    if limit <= 1000 && limit % 50 == 0 {
+        if let user_service::Filters {
+            steam_id: None,
+            oculus_id: None,
+        } = filters
+        {
+            context.body(&user_service::get_cached_users(limit, filters));
+            return Box::new(future::ok(context));
+        }
+    }
+
     let fetched_result = match user_service::get_users(limit, filters) {
         Ok(_fetched_result) => _fetched_result,
         Err(_) => return error(context),

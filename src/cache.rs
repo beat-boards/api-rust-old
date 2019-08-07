@@ -1,15 +1,10 @@
-use diesel::ExpressionMethods;
-use diesel::QueryDsl;
-use diesel::RunQueryDsl;
 use lazy_static::*;
 use r2d2::{Pool, PooledConnection};
 use r2d2_redis::redis::Commands;
 use r2d2_redis::RedisConnectionManager;
+use serde::Serialize;
 use serde_json;
 
-use crate::db;
-use crate::models::users::User;
-use crate::schema::users::dsl::*;
 use crate::util::env_vars::{CACHE_MAX_POOL_SIZE, CACHE_URL};
 
 lazy_static! {
@@ -30,25 +25,70 @@ pub fn establish_connection() -> PooledConnection<RedisConnectionManager> {
         .expect(&format!("Error connecting to {}", *CACHE_URL))
 }
 
-pub fn update_cache() {
-    let mut cache_conn = establish_connection();
-    let db_conn = db::establish_connection();
+fn update_cache<T: Serialize>(
+    list: Vec<T>,
+    cache_conn: &mut PooledConnection<RedisConnectionManager>,
+    chunk_size: usize,
+    name: &str,
+) {
+    for (i, chunk) in list.chunks(chunk_size).enumerate() {
+        let cache_key = format!("bbapi:{}:{}", name, i);
 
-    let db_list = users
-        .order((rp.desc(), id.asc()))
-        .limit(1000)
-        .load::<User>(&db_conn)
-        .expect("Querying users from database for caching");
+        let db_str = serde_json::to_string(&chunk)
+            .expect(&format!("Serializing {} from databse for caching", name));
+        let cache_str: String = cache_conn.get(&cache_key).unwrap_or(String::from(""));
 
-    let db_list =
-        serde_json::to_string(&db_list).expect("Serializing users from databse for caching");
+        if cache_str != db_str {
+            println!("Updating {} cache...", name);
+            let _: () = cache_conn.set(&cache_key, &db_str).expect("Updating cache");
+        }
+    }
+}
 
-    let cache_list: String = cache_conn.get("bbapi:users").unwrap_or(String::from(""));
+pub mod users {
+    use diesel::ExpressionMethods;
+    use diesel::QueryDsl;
+    use diesel::RunQueryDsl;
 
-    if cache_list != db_list {
-        println!("Updating cache...");
-        let _: () = cache_conn
-            .set("bbapi:users", &db_list)
-            .expect("Updating cache");
+    use crate::cache;
+    use crate::db;
+    use crate::models::users::User;
+    use crate::schema::users::dsl::*;
+
+    pub fn update_cache() {
+        let mut cache_conn = cache::establish_connection();
+        let db_conn = db::establish_connection();
+
+        let db_users = users
+            .order((rp.desc(), id.asc()))
+            .limit(1000)
+            .load::<User>(&db_conn)
+            .expect("Querying users from database for caching");
+
+        cache::update_cache(db_users, &mut cache_conn, 50, "users");
+    }
+}
+
+pub mod maps {
+    use diesel::ExpressionMethods;
+    use diesel::QueryDsl;
+    use diesel::RunQueryDsl;
+
+    use crate::cache;
+    use crate::db;
+    use crate::models::maps::Map;
+    use crate::schema::maps::dsl::*;
+
+    pub fn update_cache() {
+        let mut cache_conn = cache::establish_connection();
+        let db_conn = db::establish_connection();
+
+        let db_maps = maps
+            .order((max_rp.desc(), id.asc()))
+            .limit(500)
+            .load::<Map>(&db_conn)
+            .expect("Querying maps from database for caching");
+
+        cache::update_cache(db_maps, &mut cache_conn, 50, "maps");
     }
 }

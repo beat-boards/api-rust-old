@@ -31,8 +31,6 @@ mod maps;
 mod scores;
 mod users;
 
-use dotenv::dotenv;
-use futures::future::lazy;
 use futures::{future, Future};
 use std::boxed::Box;
 
@@ -47,7 +45,6 @@ use crate::users::init as user_routes;
 
 use crate::context::{generate_context, Ctx};
 
-use crate::cache::update_cache;
 use crate::util::env_vars::{HOST, PORT};
 use crate::util::error::HttpError;
 
@@ -65,42 +62,6 @@ fn profiling(
             ctx.request.method(),
             ctx.request.path()
         );
-
-        future::ok(ctx)
-    });
-
-    Box::new(ctx_future)
-}
-
-fn user_caching(
-    context: Ctx,
-    next: impl Fn(Ctx) -> MiddlewareReturnValue<Ctx> + Send + Sync,
-) -> MiddlewareReturnValue<Ctx> {
-    let ctx_future = next(context).and_then(move |ctx| {
-        if ctx.request.method() != "GET" {
-            tokio::spawn(lazy(|| {
-                update_cache();
-                Ok(())
-            }));
-        }
-
-        future::ok(ctx)
-    });
-
-    Box::new(ctx_future)
-}
-
-fn map_caching(
-    context: Ctx,
-    next: impl Fn(Ctx) -> MiddlewareReturnValue<Ctx> + Send + Sync,
-) -> MiddlewareReturnValue<Ctx> {
-    let ctx_future = next(context).and_then(move |ctx| {
-        if ctx.request.method() != "GET" {
-            tokio::spawn(lazy(|| {
-                update_cache();
-                Ok(())
-            }));
-        }
 
         future::ok(ctx)
     });
@@ -127,8 +88,6 @@ pub fn not_found(
 }
 
 fn main() {
-    dotenv().ok();
-
     let mut app = App::create(generate_context);
 
     app.use_middleware("/", middleware![Ctx => profiling]);

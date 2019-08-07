@@ -48,6 +48,7 @@ use crate::context::{generate_context, Ctx};
 
 use crate::util::cache::update_cache;
 use crate::util::error::HttpError;
+use crate::util::env_vars::{HOST, PORT};
 
 fn profiling(
     context: Ctx,
@@ -109,10 +110,7 @@ fn main() {
 
     app.set404(middleware![Ctx => not_found]);
 
-    let host = env::var("HOST").unwrap_or("0.0.0.0".to_string());
-    let port = env::var("PORT").unwrap_or("4321".to_string());
-
-    println!("Running on {}:{}", &host, &port);
+    println!("Running on {}:{}", *HOST, *PORT);
     let server = Server::new(app);
-    server.start(&host, port.parse::<u16>().unwrap());
+    server.start(&*HOST, *PORT);
 }

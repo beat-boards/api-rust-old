@@ -6,37 +6,59 @@ use r2d2::Pool;
 use r2d2_redis::RedisConnectionManager;
 use std::env;
 
+pub mod env_vars {
+    use lazy_static::*;
+    use dotenv::dotenv;
+    use std::env;
+
+    lazy_static! {
+        pub static ref DB_URL: String = {
+            dotenv().ok();
+            env::var("DB_URL").expect("Missing environment variable DB_URL")
+        };
+
+        pub static ref CACHE_URL: String = {
+            dotenv().ok();
+            env::var("CACHE_URL").expect("Missing environment variable CACHE_URL")
+        };
+
+        pub static ref DB_MAX_POOL_SIZE: u32 = {
+            dotenv().ok();
+            env::var("DB_MAX_POOL_SIZE").expect("Missing environment variable DB_MAX_POOL_SIZE").parse::<u32>().expect("DB_MAX_POOL_SIZE must be an unsigned integer")
+        };
+
+        pub static ref CACHE_MAX_POOL_SIZE: u32 = {
+            dotenv().ok();
+            env::var("CACHE_MAX_POOL_SIZE").expect("Missing environment variable CACHE_MAX_POOL_SIZE").parse::<u32>().expect("CACHE_MAX_POOL_SIZE must be an unsigned integer")
+        };
+
+        pub static ref HOST: String = {
+            dotenv().ok();
+            env::var("HOST").expect("Missing environment variable HOST")
+        };
+
+        pub static ref PORT: u16 = {
+            dotenv().ok();
+            env::var("PORT").expect("Missing environment variable PORT").parse::<u16>().expect("PORT must be an unsigned integer")
+        };
+    }
+}
+
 lazy_static! {
     static ref DB_CONNECTION_POOL: Pool<ConnectionManager<PgConnection>> = {
-        dotenv().ok();
-
-        let database_url = env::var("DB_URL").expect("DB_URL must be set");
-        let manager = ConnectionManager::new(database_url);
-        let database_max_pool_size: u32 = env::var("DB_MAX_POOL_SIZE")
-            .unwrap_or(String::from("8"))
-            .parse()
-            .expect("DB_MAX_POOL_SIZE must be an unsigned integer");
+        let manager = ConnectionManager::new(&*env_vars::DB_URL);
         let pool = Pool::builder()
-            .max_size(database_max_pool_size)
+            .max_size(*env_vars::DB_MAX_POOL_SIZE)
             .build(manager)
             .unwrap();
 
         pool
     };
-}
 
-lazy_static! {
     static ref CACHE_CONNECTION_POOL: Pool<RedisConnectionManager> = {
-        dotenv().ok();
-
-        let cache_url = env::var("CACHE_URL").expect("CACHE_URL must be set");
-        let manager = RedisConnectionManager::new(&cache_url[..]).unwrap();
-        let cache_max_pool_size: u32 = env::var("CACHE_MAX_POOL_SIZE")
-            .unwrap_or(String::from("8"))
-            .parse()
-            .expect("CACHE_MAX_POOL_SIZE must be an unsigned integer");
+        let manager = RedisConnectionManager::new(&(*env_vars::CACHE_URL)[..]).unwrap();
         let pool = Pool::builder()
-            .max_size(cache_max_pool_size)
+            .max_size(*env_vars::CACHE_MAX_POOL_SIZE)
             .build(manager)
             .unwrap();
 
@@ -51,13 +73,12 @@ pub mod db {
     use std::env;
 
     use crate::util::DB_CONNECTION_POOL;
+    use crate::util::env_vars::DB_URL;
 
     pub fn establish_connection() -> PooledConnection<ConnectionManager<PgConnection>> {
-        let database_url = env::var("DB_URL").expect("DB_URL must be set");
-
         DB_CONNECTION_POOL
             .get()
-            .expect(&format!("Error connecting to {}", database_url))
+            .expect(&format!("Error connecting to {}", *DB_URL))
     }
 }
 
@@ -75,13 +96,12 @@ pub mod cache {
     use crate::schema::users::dsl::*;
     use crate::util::db;
     use crate::util::CACHE_CONNECTION_POOL;
+    use crate::util::env_vars::CACHE_URL;
 
     pub fn establish_connection() -> PooledConnection<RedisConnectionManager> {
-        let cache_url = env::var("CACHE_URL").expect("CACHE_URL must be set");
-
         CACHE_CONNECTION_POOL
             .get()
-            .expect(&format!("Error connecting to {}", cache_url))
+            .expect(&format!("Error connecting to {}", *CACHE_URL))
     }
 
     pub fn update_cache() {

@@ -98,3 +98,22 @@ pub mod error {
         }
     }
 }
+
+pub mod query_string {
+    use std::collections::HashMap;
+
+    fn get_i64(query_params: &HashMap<String, String>, name: &str, default: i64) -> i64 {
+        query_params
+            .get(name)
+            .unwrap_or(&format!("{}", &default))
+            .parse()
+            .unwrap_or(default)
+    }
+
+    pub fn get_offset_and_limit(query_params: &HashMap<String, String>) -> (i64, i64) {
+        (
+            get_i64(query_params, "offset", 0),
+            get_i64(query_params, "limit", 50),
+        )
+    }
+}

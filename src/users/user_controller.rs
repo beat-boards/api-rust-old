@@ -4,6 +4,7 @@ use thruster::MiddlewareReturnValue;
 use crate::models::users::NewUser;
 use crate::users::user_service;
 use crate::util::error::HttpError;
+use crate::util::query_string;
 use futures::future;
 use std::boxed::Box;
 use uuid::Uuid;
@@ -20,18 +21,7 @@ pub fn get_users(
 
     context.content_type("application/json");
 
-    let offset: i64 = context
-        .query_params
-        .get("offset")
-        .unwrap_or(&String::from("0"))
-        .parse()
-        .unwrap_or(0);
-    let limit: i64 = context
-        .query_params
-        .get("limit")
-        .unwrap_or(&String::from("100"))
-        .parse()
-        .unwrap_or(100);
+    let (offset, limit) = query_string::get_offset_and_limit(&context.query_params);
 
     let steam_id = context.query_params.get("steamId");
     let steam_id: Option<i64> = match steam_id {

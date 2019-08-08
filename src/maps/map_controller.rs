@@ -4,6 +4,7 @@ use thruster::MiddlewareReturnValue;
 use crate::maps::map_service;
 use crate::models::maps::NewMap;
 use crate::util::error::HttpError;
+use crate::util::query_string;
 use futures::future;
 use std::boxed::Box;
 use uuid::Uuid;
@@ -20,18 +21,13 @@ pub fn get_maps(
 
     context.content_type("application/json");
 
-    let limit: i64 = context
-        .query_params
-        .get("limit")
-        .unwrap_or(&String::from("100"))
-        .parse()
-        .unwrap_or(100);
+    let (offset, limit) = query_string::get_offset_and_limit(&context.query_params);
 
     let hash = context.query_params.get("hash");
 
     let filters = map_service::Filters { hash };
 
-    let fetched_result = match map_service::get_maps(limit, filters) {
+    let fetched_result = match map_service::get_maps(offset, limit, filters) {
         Ok(_fetched_result) => _fetched_result,
         Err(_) => return error(context),
     };

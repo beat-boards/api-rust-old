@@ -14,7 +14,7 @@ pub struct Filters<'a> {
     pub hash: Option<&'a String>,
 }
 
-pub fn get_maps(limit: i64, filters: Filters) -> Result<Vec<Map>, Error> {
+pub fn get_maps(offset: i64, limit: i64, filters: Filters) -> Result<Vec<Map>, Error> {
     let conn = db::establish_connection();
 
     let mut query = maps.into_boxed();
@@ -23,6 +23,7 @@ pub fn get_maps(limit: i64, filters: Filters) -> Result<Vec<Map>, Error> {
     }
     query
         .order((max_rp.desc(), id.asc()))
+        .offset(offset)
         .limit(limit)
         .load::<Map>(&conn)
 }

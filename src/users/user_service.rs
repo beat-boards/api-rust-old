@@ -17,7 +17,7 @@ pub struct Filters<'a> {
     pub oculus_id: Option<&'a String>,
 }
 
-pub fn get_users(limit: i64, filters: Filters) -> Result<Vec<User>, Error> {
+pub fn get_users(offset: i64, limit: i64, filters: Filters) -> Result<Vec<User>, Error> {
     let conn = db::establish_connection();
 
     let mut query = users.into_boxed();
@@ -29,17 +29,19 @@ pub fn get_users(limit: i64, filters: Filters) -> Result<Vec<User>, Error> {
     }
     query
         .order((rp.desc(), id.asc()))
+        .offset(offset)
         .limit(limit)
         .load::<User>(&conn)
 }
 
-pub fn get_cached_users(limit: i64, _filters: Filters) -> String {
+pub fn get_cached_users(offset: i64, limit: i64, _filters: Filters) -> String {
     let mut result = String::new();
     let mut conn = cache::establish_connection();
-    let chunk_qty = limit / 50; // Amount of 50 users chunks to get from the cache
+    let chunk_offset = offset / 50;
+    let chunk_limit = limit / 50; // Amount of 50 users chunks to get from the cache
 
     // Query cache for each chunk
-    for i in 0..chunk_qty {
+    for i in chunk_offset..chunk_limit {
         let mut cache_str: String = conn
             .get(&format!("bbapi:users:{}", i))
             .unwrap_or(String::from(""));
@@ -54,14 +56,14 @@ pub fn get_cached_users(limit: i64, _filters: Filters) -> String {
         }
 
         // Remove opening brackets except on the first chunk
-        if i != 0 {
+        if i != chunk_offset {
             if cache_str.remove(0) != '[' {
                 panic!("Corrupted cache");
             }
         }
 
         // Replace closing brackets with a comma except on the last chunk
-        if i != chunk_qty - 1 {
+        if i != chunk_limit - 1 {
             if cache_str.pop() != Some(']') {
                 panic!("Corrupted cache");
             }

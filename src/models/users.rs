@@ -28,3 +28,20 @@ pub struct NewUser<'a> {
     pub country: &'a str,
     pub image: Option<&'a str>,
 }
+
+#[derive(Debug, Deserialize, Serialize, Queryable)]
+#[serde(rename_all(serialize = "camelCase"))]
+pub struct RankedUser {
+    pub id: Uuid,
+    pub rank: u64,
+    pub steam_id: Option<i64>,
+    pub oculus_id: Option<String>,
+    pub banned: bool,
+    pub username: String,
+    pub role: Role,
+    pub country: String,
+    pub rp: f64,
+    pub fails: i32,
+    pub following: Vec<Uuid>,
+    pub image: Option<String>,
+}

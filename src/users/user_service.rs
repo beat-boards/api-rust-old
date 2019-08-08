@@ -17,6 +17,48 @@ pub struct Filters<'a> {
     pub oculus_id: Option<&'a String>,
 }
 
+pub mod rank {
+    use crate::models::users::{RankedUser, User};
+
+    pub fn rank_users(users: Vec<User>, offset: i64) -> Vec<RankedUser> {
+        let mut ranked_users: Vec<RankedUser> = Vec::new();
+
+        for (i, user) in users.into_iter().enumerate() {
+            let rank = 1 + offset as u64 + i as u64;
+            let User {
+                id,
+                steam_id,
+                oculus_id,
+                banned,
+                username,
+                role,
+                country,
+                rp,
+                fails,
+                following,
+                image,
+            } = user;
+
+            ranked_users.push(RankedUser {
+                id,
+                rank,
+                steam_id,
+                oculus_id,
+                banned,
+                username,
+                role,
+                country,
+                rp,
+                fails,
+                following,
+                image,
+            });
+        }
+
+        ranked_users
+    }
+}
+
 pub fn get_users(offset: i64, limit: i64, filters: Filters) -> Result<Vec<User>, Error> {
     let conn = db::establish_connection();
 
@@ -34,7 +76,7 @@ pub fn get_users(offset: i64, limit: i64, filters: Filters) -> Result<Vec<User>,
         .load::<User>(&conn)
 }
 
-pub fn get_cached_users(offset: i64, limit: i64, _filters: Filters) -> String {
+pub fn get_cached_users(offset: i64, limit: i64, _rank: bool, _filters: Filters) -> String {
     let mut result = String::new();
     let mut conn = cache::establish_connection();
     let chunk_offset = offset / 50;

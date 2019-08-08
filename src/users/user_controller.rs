@@ -23,6 +23,11 @@ pub fn get_users(
 
     let (offset, limit) = query_string::get_offset_and_limit(&context.query_params);
 
+    let rank = match context.query_params.get("rank") {
+        Some(_) => true,
+        None => false,
+    };
+
     let steam_id = context.query_params.get("steamId");
     let steam_id: Option<i64> = match steam_id {
         Some(id) => match id.parse::<i64>() {
@@ -44,7 +49,9 @@ pub fn get_users(
             oculus_id: None,
         } = filters
         {
-            context.body(&user_service::get_cached_users(offset, limit, filters));
+            context.body(&user_service::get_cached_users(
+                offset, limit, rank, filters,
+            ));
             return Box::new(future::ok(context));
         }
     }
@@ -54,10 +61,17 @@ pub fn get_users(
         Err(_) => return error(context),
     };
 
-    match serde_json::to_string(&fetched_result) {
-        Ok(result) => context.body(&result),
-        Err(_) => return error(context),
-    };
+    if rank == true {
+        match serde_json::to_string(&user_service::rank::rank_users(fetched_result, offset)) {
+            Ok(result) => context.body(&result),
+            Err(_) => return error(context),
+        };
+    } else {
+        match serde_json::to_string(&fetched_result) {
+            Ok(result) => context.body(&result),
+            Err(_) => return error(context),
+        };
+    }
 
     Box::new(future::ok(context))
 }

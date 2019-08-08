@@ -39,7 +39,7 @@ The choice of Rust was made for the same two reasons. First of, the sheer perfor
 
 Three main options were considered: [Actix web](https://github.com/actix/actix-web), [Tide](https://github.com/rustasync/tide), and [Thruster](https://github.com/trezm/Thruster). Tide was eliminated first because of its reliance on nightly, which would have been an issue in production. Once async/await gets to stable Rust, it would certainly be the best choice.
 
-The choice of Thruster over Actix web might seem a bit weird as Actix web is insanely more popular and [tested in production](https://www.reddit.com/r/rust/comments/cdg5b4/rust_in_the_on_of_the_biggest_music_festival/). [But this post](https://www.reddit.com/r/rust/comments/ce09id/why_we_need_alternatives_to_actix/) made me choose Thruster. The dev behind Thruster seems to be putting a lot of effort into it and is actively maintaining it while trying to stay close to the community (I stumbled upon him a lot of time on Reddit posts while trying to make a choice). Thruster also seems to be as fast as Actix web in normal conditions.
+The choice of Thruster over Actix web might seem a bit weird as Actix web is insanely more popular and [tested in production](https://www.reddit.com/r/rust/comments/cdg5b4/rust_in_the_on_of_the_biggest_music_festival/). But [this post](https://www.reddit.com/r/rust/comments/ce09id/why_we_need_alternatives_to_actix/) made me choose Thruster. The dev behind Thruster seems to be putting a lot of effort into it and is actively maintaining it while trying to stay close to the community (I stumbled upon him a lot of time on Reddit posts while trying to make a choice). Thruster also seems to be as fast as Actix web in normal conditions.
 
 ### Database and cache
 

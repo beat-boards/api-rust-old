@@ -45,7 +45,7 @@ The choice of Thruster over Actix web might seem a bit weird as Actix web is ins
 
 The choice of PostgreSQL was easy, it's battle tested, complete and the database with the best Rust ecosystem. And because of Diesel support of course. Redis was a go-to for cache, it has excellent Rust support and no real competiton.
 
-The database implementation is pretty straightforward, using a R2D2 connection pool, Diesel for ORM and Serde for serialising query responses to JSON. The caching implementation also uses a R2D2 connection pool, but directly stores the serialized JSON as chunks. In case requests where `start % chunk_size == 0` and `limit % chunk_size == 0`, no serialisation or deserialisation is needed and the preserialised JSON is returned as is with simple string concatenation if required, achieving 2-3x the speed of a database query.
+The database implementation is pretty straightforward, using a R2D2 connection pool, Diesel for ORM and Serde for serialising query responses to JSON. The caching implementation also uses a R2D2 connection pool, but directly stores the serialized JSON as chunks. In case requests where `offset % chunk_size == 0` and `limit % chunk_size == 0`, no serialisation or deserialisation is needed and the preserialised JSON is returned as is with simple string concatenation if required, achieving 2-3x the speed of a database query.
 
 ### Recommendations
 
@@ -56,6 +56,7 @@ First of, we can definitely recommend Rust for building fast REST APIs, or prett
 * [thruster-cli](https://github.com/trezm/thruster-cli) for getting us started with a pretty good template.
 * [diesel-derive-enum](https://github.com/adwhit/diesel-derive-enum) for making working with Diesel and enums super easy.
 * [r2d2-redis](https://github.com/sorccu/r2d2-redis) for making working with Redis and R2D2 as easy.
+* [cargo-husky](https://github.com/rhysd/cargo-husky) for making sure commits don't break stuff.
 
 ## License
 

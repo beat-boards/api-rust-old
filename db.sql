@@ -75,54 +75,6 @@ CREATE TYPE public.role AS ENUM (
 
 
 --
--- TOC entry 202 (class 1255 OID 16535)
--- Name: diesel_manage_updated_at(regclass); Type: FUNCTION; Schema: public; Owner: -
---
-
-CREATE FUNCTION public.diesel_manage_updated_at(_tbl regclass) RETURNS void
-    LANGUAGE plpgsql
-    AS $$
-BEGIN
-    EXECUTE format('CREATE TRIGGER set_updated_at BEFORE UPDATE ON %s
-                    FOR EACH ROW EXECUTE PROCEDURE diesel_set_updated_at()', _tbl);
-END;
-$$;
-
-
---
--- TOC entry 201 (class 1255 OID 16536)
--- Name: diesel_set_updated_at(); Type: FUNCTION; Schema: public; Owner: -
---
-
-CREATE FUNCTION public.diesel_set_updated_at() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$
-BEGIN
-    IF (
-        NEW IS DISTINCT FROM OLD AND
-        NEW.updated_at IS NOT DISTINCT FROM OLD.updated_at
-    ) THEN
-        NEW.updated_at := current_timestamp;
-    END IF;
-    RETURN NEW;
-END;
-$$;
-
-
-SET default_with_oids = false;
-
---
--- TOC entry 200 (class 1259 OID 16537)
--- Name: __diesel_schema_migrations; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.__diesel_schema_migrations (
-    version character varying(50) NOT NULL,
-    run_on timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
-);
-
-
---
 -- TOC entry 198 (class 1259 OID 16443)
 -- Name: maps; Type: TABLE; Schema: public; Owner: -
 --
@@ -185,15 +137,6 @@ CREATE TABLE public.users (
     following uuid[] DEFAULT ARRAY[]::uuid[] NOT NULL,
     image text
 );
-
-
---
--- TOC entry 2740 (class 2606 OID 16542)
--- Name: __diesel_schema_migrations __diesel_schema_migrations_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.__diesel_schema_migrations
-    ADD CONSTRAINT __diesel_schema_migrations_pkey PRIMARY KEY (version);
 
 
 --

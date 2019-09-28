@@ -25,7 +25,7 @@ tokio = "0.1"
 tokio-proto = "0.1"
 tokio-service = "0.1"
 env_logger = { version = "0.6", default-features = false }
-uuid = { version = "0.6", features = ["serde", "v4"] }
+uuid = { version = "0.7", features = ["serde", "v4"] }
 
 [dev-dependencies]
 cargo-husky = { version = "1", default-features = false, features = ["prepush-hook", "precommit-hook", "run-cargo-check", "run-cargo-fmt"] }
